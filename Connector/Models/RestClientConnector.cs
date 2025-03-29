@@ -22,7 +22,6 @@ namespace Connector.Models
         {
             var response = await _client.GetJsonAsync<Candle>($"candles/trade:1m:{pair}/last");
             return response;
-
         }
         public void Dispose()
         {
