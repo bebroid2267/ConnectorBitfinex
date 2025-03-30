@@ -20,7 +20,7 @@
         /// <summary>
         /// Направление (buy/sell)
         /// </summary>
-        public string Side { get; set; }
+        public string Side => Amount > 0 ? "buy" : "sell";
 
         /// <summary>
         /// Время трейда

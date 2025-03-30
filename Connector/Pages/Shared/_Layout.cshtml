@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Connector</title>
     <script type="importmap"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/tradeHub")
+            .build();
+
+        connection.on("ReceiveSellTrade", (trade) => {
+            const item = document.createElement("li");
+            item.textContent = ` Sell ID: ${trade.id}, Цена: ${trade.price}, Объем: ${trade.amount}`;
+            document.getElementById("tradesList").appendChild(item);
+        });
+
+        connection.on("ReceiveBuyTrade", (trade) => {
+            const item = document.createElement("li");
+            item.textContent = `Buy ID: ${trade.id}, Цена: ${trade.price}, Объем: ${trade.amount}`;
+            document.getElementById("tradesList").appendChild(item);
+        });
+
+        connection.on("ReceiveCandle", (candle) => {
+            const item = document.createElement("li");
+            item.textContent = `Candle pair: ${candle.pair}, Цена открытия : ${candle.openPrice}, макс цена: ${candle.HighPrice}, low price: ${candle.lowPrice}, closePrice`;
+            document.getElementById("tradesList").appendChild(item);
+        });
+
+        async function start() {
+            try {
+                await connection.start();
+                console.log("Подключение установлено.");
+            } catch (err) {
+                console.error(err);
+                setTimeout(start, 5000);
+            }
+        }
+
+        start();
+
+        async function subscribe() {
+            await fetch('/api/trades/subscribeTrade/tBTCUSD', { method: 'POST' });
+        }
+    </script>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Connector.styles.css" asp-append-version="true" />
@@ -18,6 +60,8 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <button onclick="subscribe()">подписаться</button>
+                <ul id="tradeList"></ul>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
